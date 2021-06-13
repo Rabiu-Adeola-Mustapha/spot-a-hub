@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Repository;
+using Repository.Contracts;
 using System;
 
 namespace Extensions
@@ -16,6 +18,11 @@ namespace Extensions
                    configuration.GetConnectionString("DBConnection")));
 
         }
-     
+        public static void ConfigureRepositoryManager(this IServiceCollection services)
+        {
+            services.AddScoped<IRepositoryManager,RepositoryManager>();
+
+        }
+
     }
 }
