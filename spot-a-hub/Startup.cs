@@ -28,6 +28,7 @@ namespace spot_a_hub
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureSqlContext(Configuration);
+            services.ConfigureRepositoryManager();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

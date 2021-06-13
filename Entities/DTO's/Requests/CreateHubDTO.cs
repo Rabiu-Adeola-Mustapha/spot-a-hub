@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities.ViewModels
+namespace Entities.DTO_s.Requests
 {
-    public class HubbVM
+    public class CreateHubDTO
     {
         public string Name { get; set; }
         public string State { get; set; }

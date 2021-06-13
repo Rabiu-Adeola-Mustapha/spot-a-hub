@@ -27,7 +27,20 @@ namespace Repository
             DeleteSingleHubbId(id);
         }
 
-      
+
+        public IEnumerable<Hubb> GetHubs(bool trackChanges)
+        {
+            var getHubs = FindAll(trackChanges).ToList();
+
+            if (getHubs == null)
+            {
+                return new List<Hubb>();
+            }
+
+            return getHubs;
+        }
+
+     
 
         public void UpdateHubb(Hubb hubb)
         {
@@ -38,6 +51,63 @@ namespace Repository
         {
             var getHub = await FindByCondition(h => h.HubbId == id, trackchanges)
                 .AsNoTracking()              
+                .SingleOrDefaultAsync();
+
+            if (getHub == null)
+            {
+                return null;
+            }
+
+            return getHub;
+        }
+
+        public async Task<Hubb> GetHubbByName(string name, bool trackchanges)
+        {
+            var getHub = await FindByCondition(h => h.Name == name, trackchanges)
+                 .AsNoTracking()
+                 .SingleOrDefaultAsync();
+
+            if (getHub == null)
+            {
+                return null;
+            }
+
+            return getHub;
+        }
+
+        public async Task<IEnumerable<Hubb>> GetHubbsByState(string state, bool trackchanges)
+        {
+            var getHub = await FindByCondition(h => h.State == state, trackchanges)
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (getHub == null)
+            {
+                return null;
+            }
+
+            return getHub;
+        }
+
+        public async Task<IEnumerable<Hubb>> GetHubbsByTag(string tag, bool trackchanges)
+        {
+            var getHub = await FindByCondition(h => h.Tags == tag, trackchanges)
+               .AsNoTracking()
+               .ToListAsync();
+
+            if (getHub == null)
+            {
+                return null;
+            }
+
+            return getHub;
+        }
+
+        public async Task<Hubb> GetHubbByNameSpecial(string name, bool trackchanges)
+        {
+            //come and take a look at this logic again mr man
+            var getHub = await FindByCondition(h => h.Name == name || h.Name.Contains(name), trackchanges)
+                .AsNoTracking()
                 .SingleOrDefaultAsync();
 
             if (getHub == null)
