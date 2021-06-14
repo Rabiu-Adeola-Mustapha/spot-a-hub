@@ -30,7 +30,7 @@ namespace Repository
 
         public IEnumerable<Hubb> GetHubs(bool trackChanges)
         {
-            var getHubs = FindAll(trackChanges).ToList();
+            var getHubs = FindAll(trackChanges).AsNoTracking().ToList();
 
             if (getHubs == null)
             {
@@ -81,7 +81,7 @@ namespace Repository
                 .AsNoTracking()
                 .ToListAsync();
 
-            if (getHub == null)
+            if (getHub == null || getHub.Count == 0)
             {
                 return null;
             }
@@ -95,7 +95,7 @@ namespace Repository
                .AsNoTracking()
                .ToListAsync();
 
-            if (getHub == null)
+            if (getHub == null || getHub.Count == 0)
             {
                 return null;
             }
@@ -103,10 +103,10 @@ namespace Repository
             return getHub;
         }
 
-        public async Task<Hubb> GetHubbByNameSpecial(string name, bool trackchanges)
+        public async Task<Hubb> CheckIfHubExistsByName(string name, bool trackchanges)
         {
             //come and take a look at this logic again mr man
-            var getHub = await FindByCondition(h => h.Name == name || h.Name.Contains(name), trackchanges)
+            var getHub = await FindByCondition(h => h.Name.Equals(name) || h.Name.Contains(name), trackchanges)
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
 
