@@ -105,7 +105,7 @@ namespace Repository
 
         public async Task<Hubb> CheckIfHubExistsByName(string name, bool trackchanges)
         {
-            //come and take a look at this logic again mr man
+           
             var getHub = await FindByCondition(h => h.Name.Equals(name) || h.Name.Contains(name), trackchanges)
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
