@@ -4,6 +4,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Contracts;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace spot_a_hub.Controllers
@@ -30,45 +31,51 @@ namespace spot_a_hub.Controllers
 
         [HttpGet]
         [Route("/api/gethubbyname")]
-        public async Task<ActionResult> GetHubByName([FromBody] CreateHubDTO model)
+        public async Task<ActionResult> GetHubByName(string name)
         {
-            var getHubByName = await _repositoryManager.Hubb.GetHubbByName(model.Name, trackchanges: false);
+            var getHubByName = await _repositoryManager.Hubb.GetHubbByName(name, trackchanges: false);
 
             if (getHubByName == null)
             {
-                return NotFound(new ApiResponseDTO<string> { Status = "error", Message = $"hub with the name {model.Name} not found" });
+                return NotFound(new ApiResponseDTO<string> { Status = "error", Message = $"hub with the name '{name.ToUpper()}' not found" });
             }
 
+           
             return Ok(new { Status = "success", Data = getHubByName });
         }
 
 
         [HttpGet]
         [Route("/api/gethubsbystate")]
-        public async Task<ActionResult> GetHubsByState([FromBody] CreateHubDTO model)
+        public async Task<ActionResult> GetHubsByState(string state)
         {
-            var getHubsByState = await _repositoryManager.Hubb.GetHubbsByState(model.State, trackchanges : false);
+            var getHubsByState = await _repositoryManager.Hubb.GetHubbsByState(state, trackchanges : false);
 
             if (getHubsByState == null)
             {
-                return NotFound(new ApiResponseDTO<string> { Status = "error", Message = $"hub located in {model.State} not found" });
+                return NotFound(new ApiResponseDTO<string> { Status = "error", Message = $"hub located in {state.ToUpper()} not found" });
             }
 
-            return Ok(new { Status = "success", Data = getHubsByState });
+            var displayHubsInfo = GetHubDetails(getHubsByState);
+        
+            return Ok(new { Status = "success", Data = displayHubsInfo });
         }
 
+       
         [HttpGet]
         [Route("/api/gethubsbytag")]
-        public async Task<ActionResult> GetHubsByTag([FromBody] CreateHubDTO model)
+        public async Task<ActionResult> GetHubsByTag(string tag)
         {
-            var getHubsByTag = await _repositoryManager.Hubb.GetHubbsByTag(model.Tags, trackchanges: false);
+            var getHubsByTag = await _repositoryManager.Hubb.GetHubbsByTag(tag, trackchanges: false);
 
             if (getHubsByTag == null)
             {
-                return NotFound(new ApiResponseDTO<string> { Status = "error", Message = $"hub with the tag(s) {model.Tags} not found" });
+                return NotFound(new ApiResponseDTO<string> { Status = "error", Message = $"hub with the tag(s) {tag.ToUpper()} not found" });
             }
 
-            return Ok(new { Status = "success", Data = getHubsByTag });
+            var displayHubsInfo = GetHubDetails(getHubsByTag);
+
+            return Ok(new { Status = "success", Data = displayHubsInfo });
         }
 
         [HttpPost]
@@ -76,14 +83,15 @@ namespace spot_a_hub.Controllers
         public async Task<ActionResult> AddHub([FromBody] CreateHubDTO model)
         {
 
-            var getHub = await _repositoryManager.Hubb.GetHubbByNameSpecial(model.Name, trackchanges: false);
+            var getHub = await _repositoryManager.Hubb.CheckIfHubExistsByName(model.Name, trackchanges: false);
 
-            if (getHub == null)
+            if (getHub != null)
             {
-                return Conflict(new ApiResponseDTO<string> { Status = "error", Message = $"{model.Tags} already exists" });
+                return Conflict(new ApiResponseDTO<string> { Status = "error", Message = $"{model.Name.ToUpper()} already exists" });
             }
+            await AddNewHub(model);
 
-            return Ok(await AddNewHub(model));
+            return Ok(new { Status = "success", Message= "Hub has been added sucessfully" });
 
         }
 
@@ -106,5 +114,28 @@ namespace spot_a_hub.Controllers
             return hub;
 
         }
+
+        private List<CreateHubDTO> GetHubDetails(IEnumerable<Hubb> getHubsInfo)
+        {
+            List<CreateHubDTO> getHubs = new List<CreateHubDTO>();
+
+            foreach (var item in getHubsInfo)
+            {
+                var hubs = new CreateHubDTO
+                {
+                    Address = item.Address,
+                    Image = item.Image,
+                    Name = item.Name,
+                    State = item.State,
+                    Tags = item.Tags,
+                    Website = item.Website
+                };
+
+                getHubs.Add(hubs);
+            }
+
+            return getHubs;
+        }
+
     }
 }
